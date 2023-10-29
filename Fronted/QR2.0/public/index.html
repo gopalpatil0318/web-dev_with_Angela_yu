@@ -1,0 +1,42 @@
+<!-- public/index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Generator</title>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <form id="qr-form">
+        <label for="url">Enter URL:</label>
+        <input type="text" id="url" name="url" required>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    <div id="qr-code"></div>
+
+    <script>
+        const form = document.getElementById('qr-form');
+        const qrCodeContainer = document.getElementById('qr-code');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const url = formData.get('url');
+            const qrCodeResponse = await fetch('/generate-qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url }),
+            });
+            const qrCodeBlob = await qrCodeResponse.blob();
+            const qrCodeImageUrl = URL.createObjectURL(qrCodeBlob);
+
+            qrCodeContainer.innerHTML = `
+                <img src="${qrCodeImageUrl}" alt="QR Code">
+                <a href="${qrCodeImageUrl}" download="qr-code.png">Download QR Code</a>
+            `;
+        });
+    </script>
+</body>
+</html>
